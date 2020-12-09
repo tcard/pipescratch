@@ -1,4 +1,4 @@
-# pipescracth
+# pipescratch
 
 Command pipescratch manages a scratch file as standard input/output for a
 external command.
@@ -8,6 +8,14 @@ $ pipescratch -editor subl psql postgres
 ```
 
 ![example session](example.gif)
+
+## Installing
+
+```
+$ go get github.com/tcard/pipescratch
+```
+
+## Usage
 
 pipescratch runs a command and creates a temporary scratch file. Each time
 the file is updated, its contents are passed to the command's standard
@@ -25,3 +33,5 @@ Usage of pipescratch:
   [command] [arg1] [arg2] ...
     	command to manage input/output as a scratch file
 ```
+
+
