@@ -81,20 +81,6 @@ func main() {
 
 	for {
 		select {
-		case line, ok := <-outLines:
-			if !ok {
-				outLines = nil
-				continue
-			}
-			currOut += *linePrefix + line + "\n"
-
-		case line, ok := <-errLines:
-			if !ok {
-				errLines = nil
-				continue
-			}
-			currErr += *linePrefix + line + "\n"
-
 		case ev := <-watcher.Events:
 			if ev.Op&fsnotify.Write != fsnotify.Write {
 				continue
@@ -117,6 +103,20 @@ func main() {
 
 		case err := <-watcher.Errors:
 			panic(err)
+
+		case line, ok := <-outLines:
+			if !ok {
+				outLines = nil
+				continue
+			}
+			currOut += *linePrefix + line + "\n"
+
+		case line, ok := <-errLines:
+			if !ok {
+				errLines = nil
+				continue
+			}
+			currErr += *linePrefix + line + "\n"
 		}
 
 		_, err := f.Seek(0, 0)
