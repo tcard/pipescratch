@@ -77,6 +77,8 @@ func main() {
 
 	var currOut, currErr string
 
+	var prevContents []byte
+
 	for {
 		select {
 		case line, ok := <-outLines:
@@ -100,7 +102,14 @@ func main() {
 			_, err := f.Seek(0, 0)
 			try(err)
 
-			_, err = io.Copy(cmdIn, f)
+			contents, err := ioutil.ReadAll(f)
+			try(err)
+			if bytes.Equal(prevContents, contents) {
+				continue
+			}
+			prevContents = contents
+
+			_, err = cmdIn.Write(contents)
 			try(err)
 
 			currOut, currErr = "", ""
@@ -126,24 +135,16 @@ func main() {
 				break
 			}
 		}
+
 		fmt.Fprintf(&newContents, (*linePrefix)+"~~ scratch ~~\n%s%s", currOut, currErr)
 
 		_, err = f.Seek(0, 0)
 		try(err)
 		try(f.Truncate(0))
-		select {
-		case <-watcher.Events:
-		case err := <-watcher.Errors:
-			panic(err)
-		}
 
-		_, err = io.Copy(f, &newContents)
+		prevContents = newContents.Bytes()
+		_, err = f.Write(prevContents)
 		try(err)
-		select {
-		case <-watcher.Events:
-		case err := <-watcher.Errors:
-			panic(err)
-		}
 	}
 }
 
